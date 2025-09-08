@@ -10,3 +10,5 @@
 .ms-footer-bottom span { font-size: 13px; line-height: 38px; }
 .ms-footer-bottom a { color: #6ab43e; text-decoration: none; }
 .ms-footer-bottom a:hover { color: #fff; }
+.img-card-200 { width: fit-content; max-height: 200px; }
+.img-card-400 { width: fit-content; max-height: 400px; }
