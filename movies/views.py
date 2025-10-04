@@ -1,7 +1,9 @@
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Movie, Review
+from django.contrib import messages
+from django.http import JsonResponse
+from .models import Movie, Review, MoviePetition, PetitionVote
 
 def index(request):
 	search_term = request.GET.get('search')
@@ -54,5 +56,69 @@ def delete_review(request, id, review_id):
 	review = get_object_or_404(Review, id=review_id, user=request.user)
 	review.delete()
 	return redirect('movies.show', id=id)
+
+
+# Petition Views
+def petitions(request):
+	petitions = MoviePetition.objects.filter(is_active=True).order_by('-created_at')
+	template_data = {'title': 'Movie Petitions', 'petitions': petitions}
+	return render(request, 'movies/petitions.html', {'template_data': template_data})
+
+
+@login_required
+def create_petition(request):
+	if request.method == 'POST':
+		title = request.POST.get('title', '').strip()
+		description = request.POST.get('description', '').strip()
+		
+		if title and description:
+			petition = MoviePetition.objects.create(
+				title=title,
+				description=description,
+				created_by=request.user
+			)
+			messages.success(request, 'Petition created successfully!')
+			return redirect('movies.petitions')
+		else:
+			messages.error(request, 'Please fill in all fields.')
+	
+	template_data = {'title': 'Create Movie Petition'}
+	return render(request, 'movies/create_petition.html', {'template_data': template_data})
+
+
+@login_required
+def vote_petition(request, petition_id):
+	if request.method == 'POST':
+		petition = get_object_or_404(MoviePetition, id=petition_id, is_active=True)
+		
+		# Check if user already voted
+		existing_vote = PetitionVote.objects.filter(petition=petition, user=request.user).first()
+		
+		if existing_vote:
+			return JsonResponse({'success': False, 'message': 'You have already voted for this petition.'})
+		
+		# Create vote
+		PetitionVote.objects.create(petition=petition, user=request.user)
+		
+		# Update vote count
+		petition.vote_count += 1
+		petition.save()
+		
+		return JsonResponse({'success': True, 'message': 'Vote recorded successfully!', 'vote_count': petition.vote_count})
+	
+	return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
+
+@login_required
+def petition_detail(request, petition_id):
+	petition = get_object_or_404(MoviePetition, id=petition_id, is_active=True)
+	user_has_voted = PetitionVote.objects.filter(petition=petition, user=request.user).exists()
+	
+	template_data = {
+		'title': petition.title,
+		'petition': petition,
+		'user_has_voted': user_has_voted
+	}
+	return render(request, 'movies/petition_detail.html', {'template_data': template_data})
 
 # Create your views here.

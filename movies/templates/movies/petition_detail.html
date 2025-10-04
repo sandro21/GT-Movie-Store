@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="fas fa-vote-yea me-2"></i>{{ template_data.petition.title }}</h4>
+                        <a href="{% url 'movies.petitions' %}" class="btn btn-light btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Back
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <p class="lead">{{ template_data.petition.description }}</p>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title text-primary">
+                                        <i class="fas fa-thumbs-up me-2"></i>{{ template_data.petition.vote_count }}
+                                    </h5>
+                                    <p class="card-text">Total Votes</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title text-success">
+                                        <i class="fas fa-user me-2"></i>{{ template_data.petition.created_by.username }}
+                                    </h5>
+                                    <p class="card-text">Created by</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>Created: {{ template_data.petition.created_at|date:"F d, Y \a\t g:i A" }}
+                            </small>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>{{ template_data.petition.created_at|timesince }} ago
+                            </small>
+                        </div>
+                    </div>
+                    
+                    {% if user.is_authenticated %}
+                        <div class="text-center">
+                            {% if template_data.user_has_voted %}
+                                <div class="alert alert-success" role="alert">
+                                    <i class="fas fa-check-circle me-2"></i>You have already voted for this petition!
+                                </div>
+                            {% else %}
+                                <button id="voteBtn" class="btn btn-success btn-lg" onclick="votePetition()">
+                                    <i class="fas fa-thumbs-up me-2"></i>Vote for this Movie
+                                </button>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="text-center">
+                            <div class="alert alert-info" role="alert">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <a href="{% url 'accounts.login' %}" class="alert-link">Login</a> to vote for this petition!
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function votePetition() {
+    const voteBtn = document.getElementById('voteBtn');
+    const originalText = voteBtn.innerHTML;
+    
+    // Disable button and show loading
+    voteBtn.disabled = true;
+    voteBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Voting...';
+    
+    fetch('{% url "movies.vote_petition" template_data.petition.id %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update vote count
+            document.querySelector('.text-primary').innerHTML = 
+                '<i class="fas fa-thumbs-up me-2"></i>' + data.vote_count;
+            
+            // Show success message
+            voteBtn.innerHTML = '<i class="fas fa-check me-2"></i>Voted!';
+            voteBtn.classList.remove('btn-success');
+            voteBtn.classList.add('btn-outline-success');
+            
+            // Show alert
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show mt-3';
+            alertDiv.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>${data.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            voteBtn.parentNode.appendChild(alertDiv);
+        } else {
+            // Show error message
+            voteBtn.innerHTML = originalText;
+            voteBtn.disabled = false;
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+            alertDiv.innerHTML = `
+                <i class="fas fa-exclamation-circle me-2"></i>${data.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            voteBtn.parentNode.appendChild(alertDiv);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        voteBtn.innerHTML = originalText;
+        voteBtn.disabled = false;
+        
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+        alertDiv.innerHTML = `
+            <i class="fas fa-exclamation-circle me-2"></i>An error occurred. Please try again.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        voteBtn.parentNode.appendChild(alertDiv);
+    });
+}
+</script>
+
+<!-- Add CSRF token for AJAX requests -->
+{% csrf_token %}
+{% endblock %}
