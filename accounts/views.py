@@ -1,17 +1,8 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-
-@login_required
-def orders(request):
-	template_data = {
-		'title': 'Orders',
-		'orders': request.user.order_set.all()
-	}
-	return render(request, 'accounts/orders.html', {'template_data': template_data})
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
-from django.contrib.auth.decorators import login_required
-
+from django.contrib import messages
+from .models import UserProfile
 from .forms import CustomUserCreationForm, CustomErrorList
 
 def signup(request):
@@ -47,6 +38,28 @@ def login(request):
 def logout(request):
 	auth_logout(request)
 	return redirect('home.index')
-from django.shortcuts import render
 
-# Create your views here.
+@login_required
+def profile(request):
+	profile, created = UserProfile.objects.get_or_create(user=request.user)
+	
+	if request.method == 'POST':
+		if 'profile_picture' in request.FILES:
+			profile.profile_picture = request.FILES['profile_picture']
+			profile.save()
+			messages.success(request, 'Profile picture updated successfully!')
+			return redirect('accounts.profile')
+	
+	template_data = {
+		'title': 'My Profile',
+		'profile': profile
+	}
+	return render(request, 'accounts/profile.html', {'template_data': template_data})
+
+@login_required
+def orders(request):
+	template_data = {
+		'title': 'Orders',
+		'orders': request.user.order_set.all()
+	}
+	return render(request, 'accounts/orders.html', {'template_data': template_data})
