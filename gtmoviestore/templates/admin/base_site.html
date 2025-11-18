@@ -1,0 +1,19 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}Movies Store Admin | {{ site_title|default:_("Administration") }}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/admin-custom.css' %}">
+{% endblock %}
+
+{% block branding %}
+  <div class="ms-admin-brand">
+    <h1>Movies Store Admin</h1>
+    <p class="ms-admin-brand__tagline">Manage catalog, orders, and petitions with confidence.</p>
+  </div>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+

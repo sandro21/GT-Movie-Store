@@ -1,0 +1,134 @@
+:root {
+  --ms-admin-bg: #f5f7fb;
+  --ms-admin-surface: #ffffff;
+  --ms-admin-border: #d7dce5;
+  --ms-admin-primary: #2f66f4;
+  --ms-admin-text: #1f2430;
+}
+
+body,
+#container {
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--ms-admin-bg);
+  color: var(--ms-admin-text);
+}
+
+#header {
+  background: var(--ms-admin-surface);
+  border-bottom: 1px solid var(--ms-admin-border);
+  padding: 18px 40px;
+  box-shadow: 0 2px 8px rgba(31, 36, 48, 0.08);
+}
+
+#header a:link,
+#header a:visited {
+  color: var(--ms-admin-primary);
+}
+
+.ms-admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ms-admin-brand h1 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.ms-admin-brand__tagline {
+  margin: 0;
+  color: #5b6272;
+  font-size: 0.9rem;
+}
+
+.ms-admin-brand__icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: var(--ms-admin-primary);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+}
+
+#content {
+  background: var(--ms-admin-surface);
+  border: 1px solid var(--ms-admin-border);
+  border-radius: 12px;
+  padding: 32px;
+  margin: 30px auto;
+  box-shadow: 0 10px 30px rgba(31, 36, 48, 0.05);
+}
+
+.module {
+  border-radius: 12px;
+  border: 1px solid var(--ms-admin-border);
+}
+
+.module h2,
+.module caption {
+  background-color: rgba(47, 102, 244, 0.08);
+  color: var(--ms-admin-text);
+  border-radius: 12px 12px 0 0;
+  padding: 14px 20px;
+  font-weight: 600;
+}
+
+.module table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.module table thead th {
+  font-weight: 600;
+  background: var(--ms-admin-bg);
+}
+
+.module table td,
+.module table th {
+  padding: 12px 16px;
+}
+
+.object-tools a,
+.button,
+input[type="submit"],
+button {
+  border-radius: 999px !important;
+  padding: 8px 18px !important;
+  border: none !important;
+  background-color: var(--ms-admin-primary) !important;
+  color: #fff !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  transition: background 0.2s ease;
+}
+
+.object-tools a:hover,
+.button:hover,
+input[type="submit"]:hover,
+button:hover {
+  background-color: #1b3fb8 !important;
+}
+
+table tr:nth-child(even) {
+  background: rgba(47, 102, 244, 0.03);
+}
+
+.dashboard #content {
+  max-width: 1200px;
+}
+
+@media (max-width: 768px) {
+  #content {
+    padding: 20px;
+  }
+
+  .ms-admin-brand {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
