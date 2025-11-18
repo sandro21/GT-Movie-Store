@@ -40,26 +40,25 @@ def logout(request):
 	return redirect('home.index')
 
 @login_required
-def profile(request):
-	profile, created = UserProfile.objects.get_or_create(user=request.user)
-	
-	if request.method == 'POST':
-		if 'profile_picture' in request.FILES:
-			profile.profile_picture = request.FILES['profile_picture']
-			profile.save()
-			messages.success(request, 'Profile picture updated successfully!')
-			return redirect('accounts.profile')
-	
-	template_data = {
-		'title': 'My Profile',
-		'profile': profile
-	}
-	return render(request, 'accounts/profile.html', {'template_data': template_data})
-
-@login_required
 def orders(request):
 	template_data = {
 		'title': 'Orders',
 		'orders': request.user.order_set.all()
 	}
 	return render(request, 'accounts/orders.html', {'template_data': template_data})
+
+@login_required
+def profile(request):
+	profile, created = UserProfile.objects.get_or_create(user=request.user)
+	
+	if request.method == 'POST' and request.FILES.get('profile_picture'):
+		profile.profile_picture = request.FILES['profile_picture']
+		profile.save()
+		messages.success(request, 'Profile picture updated successfully!')
+		return redirect('accounts.profile')
+	
+	template_data = {
+		'title': 'My Profile',
+		'profile': profile
+	}
+	return render(request, 'accounts/profile.html', {'template_data': template_data})
