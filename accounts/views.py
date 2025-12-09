@@ -51,10 +51,15 @@ def orders(request):
 def profile(request):
 	profile, created = UserProfile.objects.get_or_create(user=request.user)
 	
-	if request.method == 'POST' and request.FILES.get('profile_picture'):
-		profile.profile_picture = request.FILES['profile_picture']
-		profile.save()
-		messages.success(request, 'Profile picture updated successfully!')
+	if request.method == 'POST':
+		if request.FILES.get('profile_picture'):
+			profile.profile_picture = request.FILES['profile_picture']
+			profile.save()
+			messages.success(request, 'Profile picture updated successfully!')
+		if request.POST.get('max_content_rating'):
+			profile.max_content_rating = request.POST.get('max_content_rating')
+			profile.save()
+			messages.success(request, 'Max content rating updated successfully!')
 		return redirect('accounts.profile')
 	
 	template_data = {

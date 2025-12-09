@@ -4,6 +4,17 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from .models import Movie, Review, MoviePetition, PetitionVote, Favorite
+from accounts.models import UserProfile
+
+def rating_exceeds_max(movie_rating, user_max_rating):
+	"""Check if movie rating exceeds user's max content rating"""
+	if not user_max_rating:
+		return False  # No restriction if user hasn't set a max rating
+	
+	rating_order = {'G': 1, 'PG': 2, 'PG-13': 3, 'R': 4}
+	movie_level = rating_order.get(movie_rating, 0)
+	user_level = rating_order.get(user_max_rating, 0)
+	return movie_level > user_level
 
 def index(request):
 	search_term = request.GET.get('search')
@@ -14,18 +25,41 @@ def index(request):
 	
 	# Get favorited movie IDs for the current user
 	favorited_ids = set()
+	restricted_movie_ids = set()
+	
 	if request.user.is_authenticated:
 		favorited_ids = set(Favorite.objects.filter(user=request.user).values_list('movie_id', flat=True))
+		try:
+			profile = UserProfile.objects.get(user=request.user)
+			user_max_rating = profile.max_content_rating
+			if user_max_rating:
+				for movie in movies:
+					if rating_exceeds_max(movie.content_rating, user_max_rating):
+						restricted_movie_ids.add(movie.id)
+		except UserProfile.DoesNotExist:
+			pass
 	
 	template_data = {
 		'title': 'Movies', 
 		'movies': movies,
-		'favorited_ids': favorited_ids
+		'favorited_ids': favorited_ids,
+		'restricted_movie_ids': restricted_movie_ids
 	}
 	return render(request, 'movies/index.html', {'template_data': template_data})
 
 def show(request, id):
 	movie = get_object_or_404(Movie, id=id)
+	
+	# Check if movie rating exceeds user's max content rating
+	if request.user.is_authenticated:
+		try:
+			profile = UserProfile.objects.get(user=request.user)
+			if profile.max_content_rating and rating_exceeds_max(movie.content_rating, profile.max_content_rating):
+				messages.error(request, 'This movie exceeds your maximum content rating setting.')
+				return redirect('movies.index')
+		except UserProfile.DoesNotExist:
+			pass
+	
 	reviews = Review.objects.filter(movie=movie).order_by('-date')
 	is_favorited = False
 	if request.user.is_authenticated:

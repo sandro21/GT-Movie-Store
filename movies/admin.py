@@ -3,6 +3,8 @@ from django.contrib import admin
 from .models import Movie, Review, MoviePetition, PetitionVote, Favorite
 
 class MovieAdmin(admin.ModelAdmin):
+	list_display = ['name', 'content_rating', 'price']
+	list_filter = ['content_rating']
 	ordering = ['name']             # order alphabetically
 	search_fields = ['name']        # enable search by name
 

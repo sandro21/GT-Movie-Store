@@ -31,16 +31,36 @@
           </div>
         </div>
 
-        <div class="card">
+        <div class="card mb-4">
           <div class="card-body">
             <h5 class="card-title">Upload Profile Picture</h5>
             <form method="POST" enctype="multipart/form-data">
               {% csrf_token %}
               <div class="mb-3">
                 <label for="profile_picture" class="form-label">Choose a picture</label>
-                <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*" required>
+                <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*">
               </div>
               <button type="submit" class="btn bg-dark text-white">Upload Picture</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Content Rating Settings</h5>
+            <form method="POST">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="max_content_rating" class="form-label">Max Content Rating</label>
+                <select class="form-select" id="max_content_rating" name="max_content_rating" required>
+                  <option value="G" {% if template_data.profile.max_content_rating == 'G' or not template_data.profile.max_content_rating %}selected{% endif %}>G - General Audience</option>
+                  <option value="PG" {% if template_data.profile.max_content_rating == 'PG' %}selected{% endif %}>PG - Parental Guidance</option>
+                  <option value="PG-13" {% if template_data.profile.max_content_rating == 'PG-13' %}selected{% endif %}>PG-13 - Parents Strongly Cautioned</option>
+                  <option value="R" {% if template_data.profile.max_content_rating == 'R' %}selected{% endif %}>R - Restricted</option>
+                </select>
+                <small class="form-text text-muted">Movies with ratings higher than your selection will be blurred and unclickable.</small>
+              </div>
+              <button type="submit" class="btn bg-dark text-white">Save Settings</button>
             </form>
           </div>
         </div>
