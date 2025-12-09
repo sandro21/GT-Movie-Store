@@ -1,6 +1,6 @@
 
 from django.contrib import admin
-from .models import Movie, Review, MoviePetition, PetitionVote
+from .models import Movie, Review, MoviePetition, PetitionVote, Favorite
 
 class MovieAdmin(admin.ModelAdmin):
 	ordering = ['name']             # order alphabetically
@@ -21,5 +21,6 @@ admin.site.register(Movie, MovieAdmin)
 admin.site.register(Review)
 admin.site.register(MoviePetition, MoviePetitionAdmin)
 admin.site.register(PetitionVote, PetitionVoteAdmin)
+admin.site.register(Favorite)
 
 # Register your models here.

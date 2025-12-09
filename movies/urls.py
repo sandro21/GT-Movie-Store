@@ -12,4 +12,7 @@ urlpatterns = [
     path('petitions/create/', views.create_petition, name='movies.create_petition'),
     path('petitions/<int:petition_id>/', views.petition_detail, name='movies.petition_detail'),
     path('petitions/<int:petition_id>/vote/', views.vote_petition, name='movies.vote_petition'),
+    # Favorite URLs
+    path('favorites/', views.favorites, name='movies.favorites'),
+    path('<int:id>/favorite/', views.toggle_favorite, name='movies.toggle_favorite'),
 ]

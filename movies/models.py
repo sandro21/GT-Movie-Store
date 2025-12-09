@@ -50,4 +50,17 @@ class PetitionVote(models.Model):
 	def __str__(self):
 		return f"{self.user.username} voted for {self.petition.title}"
 
+
+class Favorite(models.Model):
+	id = models.AutoField(primary_key=True)
+	movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+	user = models.ForeignKey(User, on_delete=models.CASCADE)
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		unique_together = ('movie', 'user')
+
+	def __str__(self):
+		return f"{self.user.username} favorited {self.movie.name}"
+
 # Create your models here.

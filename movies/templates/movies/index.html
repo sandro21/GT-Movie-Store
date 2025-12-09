@@ -35,9 +35,15 @@
             <img src="{% static 'img/about.jpg' %}" class="card-img-top rounded img-card-200">
           {% endif %}
           <div class="card-body text-center">
-            <a href="{% url 'movies.show' id=movie.id %}" class="btn bg-dark text-white">
+            <a href="{% url 'movies.show' id=movie.id %}" class="btn bg-dark text-white mb-2">
               {{ movie.name }}
             </a>
+            {% if user.is_authenticated %}
+            <br>
+            <a href="{% url 'movies.toggle_favorite' id=movie.id %}" class="btn btn-sm {% if movie.id in template_data.favorited_ids %}btn-danger{% else %}btn-outline-danger{% endif %}" title="{% if movie.id in template_data.favorited_ids %}Remove from favorites{% else %}Add to favorites{% endif %}">
+              <i class="fas fa-heart"></i>
+            </a>
+            {% endif %}
           </div>
         </div>
       </div>
